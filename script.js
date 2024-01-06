@@ -1,5 +1,8 @@
 'use strict';
 
+import {Cycling} from './cycling.js';
+import {Running} from './running.js';
+
 // prettier-ignore
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -11,8 +14,25 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+// *******************************************************************************************
+class Workout {
+    date = new Date();
+    id = (Date.now() + '').slice(-10);
+
+    constructor(coords, distance, duration){
+        this.coords = coords; // [lat, long]
+        this.distance = distance; // in km
+        this.duration = duration; // in min
+    }
+};
+
+//Tests:
+// const run1 = new Running([39, -12], 5.2, 24, 178);
+// const cycle1 = new Cycling([39, -12], 27, 95, 523);
+// console.log(run1, cycle1);
 
 // *******************************************************************************************
+//APPLICATION ARCHITECTURE
 class App {
     //private instances
     #map;
@@ -69,7 +89,6 @@ class App {
         inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = '';
 
         //Display marker
-
         const {lat, lng} = this.#mapEvent.latlng;
     
         L.marker([lat, lng]).addTo(this.#map).bindPopup(L.popup({
@@ -84,7 +103,7 @@ class App {
     .setPopupContent('Workout')
     .openPopup(); 
     }
-    
+
 };
 
 const app = new App();
