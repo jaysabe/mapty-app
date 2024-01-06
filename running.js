@@ -1,6 +1,8 @@
 import {Workout} from './script.js';
 
 class Running extends Workout {
+    type = 'running';
+    
     constructor(coords, distance, duration, cadence){
         super(coords, distance, duration);
         this.cadence = cadence;
