@@ -7,6 +7,7 @@ class Cycling extends Workout {
         super(coords, distance, duration);
         this.elevationGain = elevationGain;
         this.calcSpeed();
+        this._setDescription();
 }
     calcSpeed() {
     // km / hr
