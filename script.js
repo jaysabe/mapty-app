@@ -55,7 +55,13 @@ class App {
 
     //get position on run
     constructor(){
+        //get user's position
         this._getPosition();
+
+        //get data from local Storage
+        this._getLocalStorage();
+
+        //Attach event handlers
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField.bind(this));
         containerWorkouts.addEventListener('click', this._moveToPopup).bind(this);
@@ -66,13 +72,13 @@ class App {
         if (navigator.geolocation) 
             navigator.geolocation.getCurrentPosition(this._loadMap.bind(this),function() {
                 alert('Could not get your position');
-    });
-}
+        });
+    }
 
     _loadMap(position){
         const {latitude} = position.coords;
         const {longitude} = position.coords;
-        console.log(`https://www.google.com/maps/@${latitude},${longitude}?entry=ttu`);
+        // console.log(`https://www.google.com/maps/@${latitude},${longitude}?entry=ttu`);
             
         const coords = [latitude, longitude]; 
         this.#map = L.map('map').setView(coords, this.#zoom);
@@ -84,7 +90,13 @@ class App {
         
         //from Leaflet lib - clicks on map
         this.#map.on('click', this._showForm.bind(this));
+
+        //render returning markers to map now map is loaded
+        this.#workouts.forEach(work => {
+            this._renderWorkoutMarker(work);
+        });
     }
+    
 
     _showForm(mapE){
         this.#mapEvent = mapE;
@@ -150,27 +162,28 @@ class App {
         
 
         //Render workout on map as a marker
-        this.renderWorkoutMarker(workout);
+        this._renderWorkoutMarker(workout);
         
         //Render workout on the list
-            this._renderWorkout(workout);
-        
-
-        //Hide the form and clear fields
+        this._renderWorkout(workout);
+    
 
         //Clear input fields
         this._hideForm();
 
-}
+        //set local storage to all workouts
+        this._setLocalStorage();
+
+    }
 
 
-_renderWorkoutMarker(workout){
-    L.marker(workout.coords).addTo(this.#map).bindPopup(L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: `${workout.type}-popup`,
+    _renderWorkoutMarker(workout){
+        L.marker(workout.coords).addTo(this.#map).bindPopup(L.popup({
+            maxWidth: 250,
+            minWidth: 100,
+            autoClose: false,
+            closeOnClick: false,
+            className: `${workout.type}-popup`
     })
     )
     .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
@@ -229,12 +242,10 @@ _renderWorkoutMarker(workout){
         _moveToPopup(e){
             //takes the closest html class related to .workout
             const workoutEl = e.target.closest('.workout');
-            console.log(workoutEl);
 
             if(!workoutEl) return;
 
-            const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id);
-            console.log(workout); 
+            const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id); 
 
             this.#map.setView(workout.coords, this.#zoom, {
                 animate: true, 
@@ -242,7 +253,29 @@ _renderWorkoutMarker(workout){
             });
 
             // using the public interface:
-            workout.click();
+            // workout.click(); -- note that localStorage can't return this method 
+        }
+
+        _setLocalStorage(){
+            //(key name, string conversion) -- use for small amt of data
+            localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+        }
+
+        _getLocalStorage(){
+            const data = JSON.parse(localStorage.getItem('workouts'));
+
+            if(!data) return;
+
+            this.#workouts = data;
+
+            this.#workouts.forEach(work => {
+                this._renderWorkout(work);
+            });
+        }
+
+        reset(){
+            localStorage.removeItem('workouts');
+            location.reload();
         }
 }
 
