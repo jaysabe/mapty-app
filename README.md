@@ -76,11 +76,17 @@ Contributions are welcome! If you'd like to contribute to the project, please fo
 
 Fork the repository.
 Create a new branch:
+```bash
 - git checkout -b feature/your-feature-name
+```
 Make your changes and commit them:
+```bash
 - git commit -m 'Add some feature'
+```
 Push to the branch:
+```bash
 - git push origin feature/your-feature-name
+```
 Open a pull request.
 
 License
